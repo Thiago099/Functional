@@ -1,13 +1,14 @@
 import mysql.connector
 import pandas as pd
-
+import json
 
 class sql:
-  def __init__(self, database, host = "localhost", user = "root", password = ""):
+  def __init__(self, database):
+    conn= json.load(open('sql.json'))
     self.mysql = mysql.connector.connect(
-      host = host,
-      user = user,
-      password = password,
+      host = conn['host'],
+      user = conn['user'],
+      password = conn['password'],
       database = database
     )
     self.mysql.autocommit=True
@@ -37,8 +38,9 @@ class sql:
 
   def run(self, sql):
     self.db.execute(sql)
+    return self.db._last_insert_id
   
   def close(self):
     self.mysql.close()
     self.db.close()
-    
+  
