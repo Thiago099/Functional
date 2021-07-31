@@ -4,7 +4,7 @@ import json
 
 class sql:
   def __init__(self, database):
-    conn= json.load(open('sql.json'))
+    conn = json.load(open('sql.json'))
     self.mysql = mysql.connector.connect(
       host = conn['host'],
       user = conn['user'],
