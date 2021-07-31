@@ -12,6 +12,10 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+CREATE DATABASE functional;
+
+USE functional;
+
 -- Copiando estrutura para tabela functional.command
 CREATE TABLE IF NOT EXISTS `command` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
