@@ -1,3 +1,4 @@
+from re import U
 from persistence import sql
 
 def get_command(command):
@@ -27,7 +28,7 @@ def build(classe, name, parameter = []):
     if(not base):
         return 'command not found'
     
-    scope = set()
+    scope = []
 
     def next(id_child, scope):
         child = db.query(f'''
@@ -102,9 +103,9 @@ def build(classe, name, parameter = []):
         ''')
 
         for i in command_parameter:
-            scope.add(i['parameter'])
+            scope.append(i['parameter'])
+
         return ret
-    
     ret = next(base['id'], scope) + base['value']
     if(type(parameter) is dict):
         for i in parameter:
@@ -114,7 +115,10 @@ def build(classe, name, parameter = []):
             else:
                 ret = ret.replace('{{'+i+'}}', parameter[i])
     else:
-        scope = list(scope)
+        unique_scope = []
+        for i in scope:
+            if(i not in unique_scope):
+                unique_scope.append(i)
         for i in range(len(scope)):
                 if(i >= len(parameter)):
                     ret = ret.replace('{{'+scope[i]+'}}', '{{'+str(i)+'}}')
