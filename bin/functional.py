@@ -19,7 +19,7 @@ def get_command(command):
     db.close()
     return result[0]
 
-def build(classe, name, parameter = []):
+def build(classe, name, parameter = {}):
     db = sql('functional')
     
     
@@ -30,7 +30,7 @@ def build(classe, name, parameter = []):
     
     scope = []
 
-    def next(id_child, scope):
+    def next(id_child, scope, padding):
         child = db.query(f'''
             SELECT
                 *
@@ -44,7 +44,7 @@ def build(classe, name, parameter = []):
 
         for i in child:
 
-            child = i['child']
+            cur_child = i['child']
             id = i['id']
 
             data = db.query(f'''
@@ -53,12 +53,12 @@ def build(classe, name, parameter = []):
                 FROM
                     command
                 WHERE
-                    id = {child}
+                    id = {cur_child}
             ''')[0]
 
             
 
-            cur = next(child, scope) + data['value']
+            cur = next(cur_child, scope, padding) + data['value']
 
             
             parameter = db.query(f'''
@@ -69,30 +69,57 @@ def build(classe, name, parameter = []):
                 WHERE
                     sub_command = {id}
             ''')    
-
             for i in parameter:
-
                 if i['parameter'] in scope:
                     scope.remove(i['parameter'])
-                
-                command = i['command']
-                
-                
-                if(command):
-                    base = db.query(f'''
-                        SELECT
-                            *
-                        FROM
-                            command
-                        WHERE
-                            id = {command}
-                        ''')[0]
-                    cur = cur.replace('{{'+i['parameter']+'}}', base['value'] + next(command, scope))
-                else:
-                    cur = cur.replace('{{'+i['parameter']+'}}', i['value'])
 
-            ret += cur + '\n'
-        
+                i['parameter'] = '{{'+i['parameter']+'}}'
+
+            
+            cur_parameter = parameter.copy()
+            temp = cur
+            j = 0
+            spaces = 0
+            start = 0
+            diference = 0
+            for i in range(len(cur)):
+                found = False
+                for k in cur_parameter:
+                    if(j >= len(k['parameter'])-1):
+                        cur_padding =  (' ' * (spaces))
+                        command = k['command']
+                        if(command):
+                            base = db.query(f'''
+                                SELECT
+                                    *
+                                FROM
+                                    command
+                                WHERE
+                                    id = {command}
+                                ''')[0]
+                            value = base['value'] + next(command, scope, cur_padding)
+                        else:
+                            value = k['value']
+
+                        value = cur_padding + value.replace('\n','\n'+cur_padding)
+                        temp = temp[0:start-spaces] + value + temp[i+1-diference:len(temp)]
+                        diference += j + 2 - len(value)+spaces-1
+                        found = True
+                        break
+                if(not found):
+                    cur_parameter = [k for k in cur_parameter if k['parameter'][j] == cur[i]]
+                    j += 1
+                if(len(cur_parameter) == 0 or found):
+                    if cur[i] == ' ':
+                        spaces += 1
+                    else:
+                        spaces = 0
+                    j = 0
+                    start = i - diference + 1
+                    cur_parameter = parameter.copy()
+
+            ret += temp + '\n'
+        ret = ret[0:-1]
         command_parameter = db.query(f'''
             SELECT
                 *
@@ -107,28 +134,53 @@ def build(classe, name, parameter = []):
 
         return ret
 
-    ret = next(base['id'], scope) + base['value']
-    if(type(parameter) is list):
-        unique_scope = []
-        for i in scope:
-            if(i not in unique_scope):
-                unique_scope.append(i)
-        for i in range(len(scope)):
-                if(i >= len(parameter)):
-                    ret = ret.replace('{{'+scope[i]+'}}', '{{'+str(i)+'}}')
-                else:
-                    if(type(parameter[i]) is tuple):
-                        command = get_command(parameter[i])
-                        ret = ret.replace('{{'+scope[i]+'}}', next(command['id']) + command['value'], scope)
-                    else:
-                        ret = ret.replace('{{'+scope[i]+'}}', parameter[i])
-    else:
+    ret = next(base['id'], scope, '') + base['value']
+    unique_scope = []
+    if(type(parameter) is dict):
         for i in parameter:
-            if(type(parameter[i]) is tuple):
-                command = get_command(parameter[i])
-                ret = ret.replace('{{'+i+'}}', next(command['id']) + command['value'], scope)
+            unique_scope.append({'parameter':'{{'+i+'}}','value':parameter[i]})
+    else:
+        for i in range(len(scope)):
+            if(i>=len(parameter)):
+                value = '{{'+str(i)+'}}'
             else:
-                ret = ret.replace('{{'+i+'}}', parameter[i])
+                value = parameter[i]
+            if({'parameter':scope[i],'value':value} not in unique_scope):
+                unique_scope.append({'parameter':'{{'+scope[i]+'}}','value':value})
+    cur_parameter = unique_scope.copy()
+    temp = ret
+    j = 0
+    spaces = 0
+    start = 0
+    diference = 0
+    for i in range(len(ret)):
+        found = False
+        for k in cur_parameter:
+            if(j >= len(k['parameter'])-1):
+                cur_padding =  (' ' * (spaces))
+                if(type(k['value']) is tuple):
+                    command = get_command(k['value'])
+                    value = next(command['id'], scope, '') + command['value']
+                else:
+                    value = k['value']
+                value = cur_padding + value.replace('\n','\n'+cur_padding)
+                temp = temp[0:start-spaces] + value + temp[i+1-diference:len(temp)]
+                diference += j + 2 - len(value)+spaces-1
+                found = True
+                break
+        if(not found):
+            cur_parameter = [k for k in cur_parameter if k['parameter'][j] == ret[i]]
+            j += 1
+        if(len(cur_parameter) == 0 or found):
+            if ret[i] == ' ':
+                spaces += 1
+            else:
+                spaces = 0
+            j = 0
+            start = i - diference + 1
+            cur_parameter = unique_scope.copy()
+    ret = temp
+    
     db.close()
     return ret
 
@@ -145,7 +197,7 @@ def create_command(classe, name, value = '', parameter = None):
             db.run(build('sql','insert into',{
                 'table':'command_parameter',
                 'field':'command, parameter',
-                'value': f"{id}, {i}"
+                'value': f"'{id}', '{i}'"
             }))
     db.close()
 
@@ -177,7 +229,7 @@ def set_child(command, child, parameter = None):
             db.run(build('sql','insert into',{
                 'table': 'sub_command_parameter',
                 'field': 'sub_command, parameter, value, command',
-                'value': f"{id}, '{i}', {('null, '+ com + get_command(parameter[i])['id'])+ com if type(parameter[i]) is tuple else (com + parameter[i] + com + ', null')}"
+                'value': f"{id}, '{i}', {('null, '+ com + str(get_command(parameter[i])['id']) + com) if type(parameter[i]) is tuple else (com + parameter[i] + com + ', null')}"
             }))
     
     db.close()
