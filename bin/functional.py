@@ -1,5 +1,10 @@
-from re import U
 from persistence import sql
+
+def cat(array, seaparator = ',\n'):
+    ret = ''
+    for i in array:
+        ret += i + seaparator
+    return ret[0:-len(seaparator)]
 
 def get_command(command):
     db = sql('functional')
@@ -103,7 +108,7 @@ def build(classe, name, parameter = {}):
 
                         value = cur_padding + value.replace('\n','\n'+cur_padding)
                         temp = temp[0:start-spaces] + value + temp[i+1-diference:len(temp)]
-                        diference += j + 2 - len(value)+spaces-1
+                        diference += j + 1 - len(value)+spaces
                         found = True
                         break
                 if(not found):
@@ -119,7 +124,9 @@ def build(classe, name, parameter = {}):
                     cur_parameter = parameter.copy()
 
             ret += temp + '\n'
+
         ret = ret[0:-1]
+
         command_parameter = db.query(f'''
             SELECT
                 *
@@ -141,13 +148,14 @@ def build(classe, name, parameter = {}):
             unique_scope.append({'parameter':'{{'+i+'}}','value':parameter[i]})
     else:
         for i in range(len(scope)):
-            if(i>=len(parameter)):
+            if(i >= len(parameter)):
                 value = '{{'+str(i)+'}}'
             else:
                 value = parameter[i]
             if({'parameter':scope[i],'value':value} not in unique_scope):
                 unique_scope.append({'parameter':'{{'+scope[i]+'}}','value':value})
     cur_parameter = unique_scope.copy()
+
     temp = ret
     j = 0
     spaces = 0
@@ -162,10 +170,13 @@ def build(classe, name, parameter = {}):
                     command = get_command(k['value'])
                     value = next(command['id'], scope, '') + command['value']
                 else:
-                    value = k['value']
+                    if(type(k['value']) is list):
+                        value = cat(k['value'])
+                    else:
+                        value = k['value']
                 value = cur_padding + value.replace('\n','\n'+cur_padding)
                 temp = temp[0:start-spaces] + value + temp[i+1-diference:len(temp)]
-                diference += j + 2 - len(value)+spaces-1
+                diference += j + 1 - len(value) + spaces
                 found = True
                 break
         if(not found):
@@ -186,17 +197,17 @@ def build(classe, name, parameter = {}):
 
 def create_command(classe, name, value = '', parameter = None):
     db = sql('functional')
-    id = db.run(build('sql','insert into',
+    id = db.run(build('sql','insert values',
     {
         'table': 'command',
-        'field': 'class, name, value',
+        'field': ['class', 'name', 'value'],
         'value':  f"'{classe}', '{name}', '{value}'"
     }))    
     if(parameter):
         for i in parameter:
-            db.run(build('sql','insert into',{
-                'table':'command_parameter',
-                'field':'command, parameter',
+            db.run(build('sql','insert values',{
+                'table': 'command_parameter',
+                'field': ['command','parameter'],
                 'value': f"'{id}', '{i}'"
             }))
     db.close()
@@ -217,19 +228,21 @@ def set_child(command, child, parameter = None):
     if(error):
         return error + ' command not found'
     db = sql('functional')
-    id = db.run(build('sql','insert into',
+    id = db.run(build('sql','insert values',
     {
         'table': 'sub_command',
-        'field': 'parent, child',
+        'field': ['parent', 'child'],
         'value': f"'{parent['id']}', '{child['id']}'"
     }))    
+   
     if(parameter):
         for i in parameter:
             com = '\''
-            db.run(build('sql','insert into',{
+            db.run(build('sql','insert values',{
                 'table': 'sub_command_parameter',
-                'field': 'sub_command, parameter, value, command',
-                'value': f"{id}, '{i}', {('null, '+ com + str(get_command(parameter[i])['id']) + com) if type(parameter[i]) is tuple else (com + parameter[i] + com + ', null')}"
+                'field': ['sub_command', 'parameter', 'value', 'command'],
+                'value': f"{id}, '{i}', {('null, '+ com + str(get_command(parameter[i])['id']) + com) if type(parameter[i]) is tuple else (com + (cat(parameter[i]) if type(parameter[i]) is list else parameter[i]) + com + ', null')}"
             }))
     
     db.close()
+
