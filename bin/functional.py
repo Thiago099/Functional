@@ -39,10 +39,9 @@ def build(classe, name, parameter = []):
             WHERE
                 parent = {id_child}
         ''')
-
-        
         
         ret = ''
+
         for i in child:
 
             child = i['child']
@@ -93,6 +92,7 @@ def build(classe, name, parameter = []):
                     cur = cur.replace('{{'+i['parameter']+'}}', i['value'])
 
             ret += cur + '\n'
+        
         command_parameter = db.query(f'''
             SELECT
                 *
@@ -106,15 +106,9 @@ def build(classe, name, parameter = []):
             scope.append(i['parameter'])
 
         return ret
+
     ret = next(base['id'], scope) + base['value']
-    if(type(parameter) is dict):
-        for i in parameter:
-            if(type(parameter[i]) is tuple):
-                command = get_command(parameter[i])
-                ret = ret.replace('{{'+i+'}}', next(command['id']) + command['value'], scope)
-            else:
-                ret = ret.replace('{{'+i+'}}', parameter[i])
-    else:
+    if(type(parameter) is list):
         unique_scope = []
         for i in scope:
             if(i not in unique_scope):
@@ -128,6 +122,13 @@ def build(classe, name, parameter = []):
                         ret = ret.replace('{{'+scope[i]+'}}', next(command['id']) + command['value'], scope)
                     else:
                         ret = ret.replace('{{'+scope[i]+'}}', parameter[i])
+    else:
+        for i in parameter:
+            if(type(parameter[i]) is tuple):
+                command = get_command(parameter[i])
+                ret = ret.replace('{{'+i+'}}', next(command['id']) + command['value'], scope)
+            else:
+                ret = ret.replace('{{'+i+'}}', parameter[i])
     db.close()
     return ret
 
@@ -148,7 +149,7 @@ def create_command(classe, name, value = '', parameter = None):
             }))
     db.close()
 
-def set_child(command, child, parameter = None, new_parameter = None):
+def set_child(command, child, parameter = None):
     parent = get_command(command)
     child = get_command(child)
     error = False
@@ -172,10 +173,11 @@ def set_child(command, child, parameter = None, new_parameter = None):
     }))    
     if(parameter):
         for i in parameter:
+            com = '\''
             db.run(build('sql','insert into',{
                 'table': 'sub_command_parameter',
                 'field': 'sub_command, parameter, value, command',
-                'value': f"{id}, '{i}', null, {get_command(parameter[i])['id'] if type(parameter[i]) is tuple else parameter[i]}"
+                'value': f"{id}, '{i}', {('null, '+ com + get_command(parameter[i])['id'])+ com if type(parameter[i]) is tuple else (com + parameter[i] + com + ', null')}"
             }))
     
     db.close()
