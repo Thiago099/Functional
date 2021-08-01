@@ -1,5 +1,5 @@
-
 import functional as fn
+import color as c
 class table:
     def __init__(self, table, field, id = True):
         self.table = table
@@ -52,9 +52,10 @@ class table:
         ]) + ';'
     
     @property
-    def update(self, condition = None):
-        if(not self.id and not condition):
-            return c.red + 'condition required' + c.white
+    def update(self):
+        if(not self.id):
+            print(c.red + 'no criterion' + c.white)
+            return
         return fn.build('sql', 'update set where', [
             self.table,
             fn.merge
@@ -68,5 +69,20 @@ class table:
                 self.field[:1],
                 self.value[:1],
                 ' = '
-            ) if self.id else condition
+            )
+        ])+ ';'
+    
+    @property
+    def delete(self):
+        if(not self.id):
+            print(c.red + 'no criterion' + c.white)
+            return
+        return fn.build('sql', 'delete where', [
+            self.table,
+            fn.merge
+            (
+                self.field[:1],
+                self.value[:1],
+                ' = '
+            )
         ])+ ';'
