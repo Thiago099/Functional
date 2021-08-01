@@ -12,9 +12,10 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-CREATE DATABASE functional;
+CREATE TABLE functional
 
-USE functional;
+USE functional
+
 
 -- Copiando estrutura para tabela functional.command
 CREATE TABLE IF NOT EXISTS `command` (
@@ -25,9 +26,9 @@ CREATE TABLE IF NOT EXISTS `command` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `language` (`class`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.command: ~19 rows (aproximadamente)
+-- Copiando dados para a tabela functional.command: ~20 rows (aproximadamente)
 /*!40000 ALTER TABLE `command` DISABLE KEYS */;
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(1, 'sql', 'select', 'SELECT\r\n  {{field}}');
@@ -69,6 +70,8 @@ INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(51, 'programming', 'proprety', '{{parent}}.{{child}}');
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(57, 'sql', 'update set where', '');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(58, 'sql', 'delete where', '');
 /*!40000 ALTER TABLE `command` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela functional.command_parameter
@@ -80,7 +83,7 @@ CREATE TABLE IF NOT EXISTS `command_parameter` (
   CONSTRAINT `FK_command_parameter_command` FOREIGN KEY (`command`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.command_parameter: ~25 rows (aproximadamente)
+-- Copiando dados para a tabela functional.command_parameter: ~24 rows (aproximadamente)
 /*!40000 ALTER TABLE `command_parameter` DISABLE KEYS */;
 INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
 	(2, 'table');
@@ -142,9 +145,9 @@ CREATE TABLE IF NOT EXISTS `sub_command` (
   KEY `FK__command_2` (`child`),
   CONSTRAINT `FK__command` FOREIGN KEY (`parent`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK__command_2` FOREIGN KEY (`child`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.sub_command: ~7 rows (aproximadamente)
+-- Copiando dados para a tabela functional.sub_command: ~9 rows (aproximadamente)
 /*!40000 ALTER TABLE `sub_command` DISABLE KEYS */;
 INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(5, 14, 3);
@@ -164,6 +167,10 @@ INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(72, 57, 25);
 INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(73, 57, 7);
+INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
+	(74, 58, 10);
+INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
+	(75, 58, 7);
 /*!40000 ALTER TABLE `sub_command` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela functional.sub_command_parameter
