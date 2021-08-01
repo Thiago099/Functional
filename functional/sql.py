@@ -20,7 +20,11 @@ class table:
         self.value = []
         for i in self.field:
             self.value.append('@' + i.capitalize()) 
-
+    
+    @property
+    def drop(self):
+        return 'DROP TABLE ' + self.table + ';'
+    
     @property
     def create(self):
         field = fn.merge(self.field, self.type)
@@ -30,7 +34,7 @@ class table:
         return fn.build('sql', 'create', [
             self.table,
             field
-        ]) + ';\n'
+        ]) + ';'
     
     @property
     def insert(self):
@@ -38,14 +42,14 @@ class table:
             self.table,
             self.field[1::] if self.id else self.field,
             self.value[1::] if self.id else self.value
-        ]) + ';\n'
+        ]) + ';'
     
     @property
     def select(self):
         return fn.build('sql', 'select from', [
             self.field,
             self.table
-        ]) + ';\n'
+        ]) + ';'
     
     @property
     def update(self, condition = None):
@@ -65,4 +69,4 @@ class table:
                 self.value[:1],
                 ' = '
             ) if self.id else condition
-        ])+ ';\n'
+        ])+ ';'
