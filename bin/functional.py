@@ -199,7 +199,7 @@ def build(classe, name, parameter = {}):
     db.close()
     return ret
 
-def create_command(classe, name, value = '', parameter = None):
+def create_command(classe, name, value = ''):
     db = sql('functional')
     id = db.run(build('sql','insert values',
     {
@@ -208,6 +208,7 @@ def create_command(classe, name, value = '', parameter = None):
         'value':  f"'{classe}', '{name}', '{value}'"
     }))    
     count = 0
+    parameter = []
     i = 0
     while (i < len(value)):
         if(value[i] == '{'):
@@ -225,14 +226,18 @@ def create_command(classe, name, value = '', parameter = None):
                 else:
                     count = 0
                 if(count == 2):
-                    db.run(build('sql','insert values',{
-                        'table': 'command_parameter',
-                        'field': ['command','parameter'],
-                        'value': f"'{id}', '{value[start:i-1]}'"
-                    }))
+                    cur = value[start:i-1]
+                    if(cur not in parameter):
+                        parameter.append(cur)
                     count = 0
                     break
         i += 1
+    for i in parameter:
+        db.run(build('sql','insert values',{
+            'table': 'command_parameter',
+            'field': ['command','parameter'],
+            'value': f"'{id}', '{i}'"
+        }))
     db.close()
 
 def set_child(command, child, parameter = None):
