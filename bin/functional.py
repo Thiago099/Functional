@@ -6,6 +6,10 @@ def cat(array, seaparator = ',\n'):
         ret += i + seaparator
     return ret[0:-len(seaparator)]
 
+def merge(a, b, separator = ' '):
+    return [a[i] + separator + b[i] for i in range(len(a) if len(a) < len(b) else len(b))]
+
+
 def get_command(command):
     db = sql('functional')
     classe, name = command
