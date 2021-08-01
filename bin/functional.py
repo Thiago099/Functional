@@ -207,13 +207,28 @@ def create_command(classe, name, value = '', parameter = None):
         'field': ['class', 'name', 'value'],
         'value':  f"'{classe}', '{name}', '{value}'"
     }))    
-    if(parameter):
-        for i in parameter:
-            db.run(build('sql','insert values',{
-                'table': 'command_parameter',
-                'field': ['command','parameter'],
-                'value': f"'{id}', '{i}'"
-            }))
+    count = 0
+    i = 0
+    while (i < len(value)):
+        if(value[i] == '{'):
+            count += 1
+        if(count == 2):
+            count = 0
+            i += 1
+            start = i
+            while(i < len(value)):
+                i += 1
+                if(value[i] == '}'):
+                    count += 1
+                if(count == 2):
+                    db.run(build('sql','insert values',{
+                        'table': 'command_parameter',
+                        'field': ['command','parameter'],
+                        'value': f"'{id}', '{value[start:i-1]}'"
+                    }))
+                    count = 0
+                    break
+        i += 1
     db.close()
 
 def set_child(command, child, parameter = None):

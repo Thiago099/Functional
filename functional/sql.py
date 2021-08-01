@@ -55,7 +55,7 @@ class table:
     def update(self):
         if(not self.id):
             print(c.red + 'no criterion' + c.white)
-            return
+            return ''
         return fn.build('sql', 'update set where', [
             self.table,
             fn.merge
@@ -76,7 +76,7 @@ class table:
     def delete(self):
         if(not self.id):
             print(c.red + 'no criterion' + c.white)
-            return
+            return ''
         return fn.build('sql', 'delete where', [
             self.table,
             fn.merge
