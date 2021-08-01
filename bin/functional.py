@@ -212,6 +212,8 @@ def create_command(classe, name, value = '', parameter = None):
     while (i < len(value)):
         if(value[i] == '{'):
             count += 1
+        else:
+            count = 0
         if(count == 2):
             count = 0
             i += 1
@@ -220,6 +222,8 @@ def create_command(classe, name, value = '', parameter = None):
                 i += 1
                 if(value[i] == '}'):
                     count += 1
+                else:
+                    count = 0
                 if(count == 2):
                     db.run(build('sql','insert values',{
                         'table': 'command_parameter',
