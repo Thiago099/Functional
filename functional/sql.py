@@ -60,8 +60,8 @@ class table:
             self.table,
             fn.merge
             (
-                self.field[1::] if self.id else self.field,
-                self.value[1::] if self.id else self.field,
+                self.field[1::],
+                self.value[1::],
                 ' = '
             ),
             fn.merge
