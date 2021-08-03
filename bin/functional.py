@@ -204,7 +204,7 @@ def create_command(classe, name, value = ''):
     id = db.run(build('sql','insert values',
     {
         'table': 'command',
-        'field': ['class', 'name', 'value'],
+        'field': [',\n', 'class', 'name', 'value'],
         'value':  f"'{classe}', '{name}', '{value}'"
     }))    
     count = 0
@@ -235,7 +235,7 @@ def create_command(classe, name, value = ''):
     for i in parameter:
         db.run(build('sql','insert values',{
             'table': 'command_parameter',
-            'field': ['command','parameter'],
+            'field': [',\n', 'command', 'parameter'],
             'value': f"'{id}', '{i}'"
         }))
     db.close()
@@ -259,7 +259,7 @@ def set_child(command, child, parameter = None):
     id = db.run(build('sql','insert values',
     {
         'table': 'sub_command',
-        'field': ['parent', 'child'],
+        'field': [',\n','parent', 'child'],
         'value': f"'{parent['id']}', '{child['id']}'"
     }))    
    
@@ -268,7 +268,7 @@ def set_child(command, child, parameter = None):
             com = '\''
             db.run(build('sql','insert values',{
                 'table': 'sub_command_parameter',
-                'field': ['sub_command', 'parameter', 'value', 'command'],
+                'field': [',\n', 'sub_command', 'parameter', 'value', 'command'],
                 'value': f"{id}, '{i}', {('null, '+ com + str(get_command(parameter[i])['id']) + com) if type(parameter[i]) is tuple else (com + (cat(parameter[i]) if type(parameter[i]) is list else parameter[i]) + com + ', null')}"
             }))
     
