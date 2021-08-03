@@ -175,7 +175,7 @@ def build(classe, name, parameter = {}):
                     value = next(command['id'], scope, '') + command['value']
                 else:
                     if(type(k['value']) is list):
-                        value = cat(k['value'])
+                        value = cat(k['value'][1::], k['value'][0])
                     else:
                         value = k['value']
                 value = cur_padding + value.replace('\n','\n'+cur_padding)

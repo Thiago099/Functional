@@ -33,21 +33,21 @@ class table:
         
         return fn.build('sql', 'create', [
             self.table,
-            field
+            [',\n'] + field
         ]) + ';'
     
     @property
     def insert(self):
         return fn.build('sql', 'insert values', [
             self.table,
-            self.field[1::] if self.id else self.field,
-            self.value[1::] if self.id else self.value
+            [',\n'] + (self.field[1::] if self.id else self.field),
+            [',\n'] + (self.value[1::] if self.id else self.value)
         ]) + ';'
     
     @property
     def select(self):
         return fn.build('sql', 'select from', [
-            self.field,
+            [',\n'] + self.field,
             self.table
         ]) + ';'
     
@@ -58,13 +58,13 @@ class table:
             return ''
         return fn.build('sql', 'update set where', [
             self.table,
-            fn.merge
+            [',\n'] + fn.merge
             (
                 self.field[1::],
                 self.value[1::],
                 ' = '
             ),
-            fn.merge
+            [',\n'] + fn.merge
             (
                 self.field[:1],
                 self.value[:1],
@@ -79,7 +79,7 @@ class table:
             return ''
         return fn.build('sql', 'delete where', [
             self.table,
-            fn.merge
+            [',\n'] + fn.merge
             (
                 self.field[:1],
                 self.value[:1],
