@@ -4,7 +4,7 @@ def cat(array, seaparator = ',\n'):
     ret = ''
     for i in array:
         ret += i + seaparator
-    return ret[0:-len(seaparator)]
+    return ret[0:-len(seaparator)] if len(seaparator) != 0 else ret
 
 def merge(a, b, separator = ' '):
     return [a[i] + separator + b[i] for i in range(len(a) if len(a) < len(b) else len(b))]
@@ -39,7 +39,7 @@ def build(classe, name, parameter = {}):
     
     scope = []
 
-    def next(id_child, scope, padding):
+    def next(id_child, padding):
         child = db.query(f'''
             SELECT
                 *
@@ -65,10 +65,7 @@ def build(classe, name, parameter = {}):
                     id = {cur_child}
             ''')[0]
 
-            
-
-            cur = next(cur_child, scope, padding) + data['value']
-
+            cur = next(cur_child, padding) + data['value']
             
             parameter = db.query(f'''
                 SELECT
@@ -79,8 +76,6 @@ def build(classe, name, parameter = {}):
                     sub_command = {id}
             ''')    
             for i in parameter:
-                if i['parameter'] in scope:
-                    scope.remove(i['parameter'])
 
                 i['parameter'] = '{{'+i['parameter']+'}}'
 
@@ -106,7 +101,7 @@ def build(classe, name, parameter = {}):
                                 WHERE
                                     id = {command}
                                 ''')[0]
-                            value = base['value'] + next(command, scope, cur_padding)
+                            value = base['value'] + next(command, cur_padding)
                         else:
                             value = k['value']
 
@@ -131,26 +126,42 @@ def build(classe, name, parameter = {}):
 
         ret = ret[0:-1]
 
-        command_parameter = db.query(f'''
-            SELECT
-                *
-            FROM
-                command_parameter
-            WHERE
-                command = {id_child}
-        ''')
-
-        for i in command_parameter:
-            scope.append(i['parameter'])
+        
 
         return ret
 
-    ret = next(base['id'], scope, '') + base['value']
+    ret = next(base['id'], '') + base['value']
+
     unique_scope = []
     if(type(parameter) is dict):
         for i in parameter:
             unique_scope.append({'parameter':'{{'+i+'}}','value':parameter[i]})
     else:
+        count = 0
+        scope = []
+        i = 0
+        while (i < len(ret)):
+            if(ret[i] == '{'):
+                count += 1
+            else:
+                count = 0
+            if(count == 2):
+                count = 0
+                i += 1
+                start = i
+                while(i < len(ret)):
+                    i += 1
+                    if(ret[i] == '}'):
+                        count += 1
+                    else:
+                        count = 0
+                    if(count == 2):
+                        cur = ret[start:i-1]
+                        if(cur not in scope):
+                            scope.append(cur)
+                        count = 0
+                        break
+            i += 1
         for i in range(len(scope)):
             if(i >= len(parameter)):
                 value = '{{'+str(i)+'}}'
@@ -199,7 +210,7 @@ def build(classe, name, parameter = {}):
     db.close()
     return ret
 
-def create_command(classe, name, value = ''):
+def create_command(classe, name, value = '',  _parameter = []):
     db = sql('functional')
     id = db.run(build('sql','insert values',
     {
@@ -207,37 +218,6 @@ def create_command(classe, name, value = ''):
         'field': [',\n', 'class', 'name', 'value'],
         'value':  f"'{classe}', '{name}', '{value}'"
     }))    
-    count = 0
-    parameter = []
-    i = 0
-    while (i < len(value)):
-        if(value[i] == '{'):
-            count += 1
-        else:
-            count = 0
-        if(count == 2):
-            count = 0
-            i += 1
-            start = i
-            while(i < len(value)):
-                i += 1
-                if(value[i] == '}'):
-                    count += 1
-                else:
-                    count = 0
-                if(count == 2):
-                    cur = value[start:i-1]
-                    if(cur not in parameter):
-                        parameter.append(cur)
-                    count = 0
-                    break
-        i += 1
-    for i in parameter:
-        db.run(build('sql','insert values',{
-            'table': 'command_parameter',
-            'field': [',\n', 'command', 'parameter'],
-            'value': f"'{id}', '{i}'"
-        }))
     db.close()
 
 def set_child(command, child, parameter = None):

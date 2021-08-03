@@ -1,3 +1,7 @@
+CREATE TABLE functional
+
+USE functional
+
 -- --------------------------------------------------------
 -- Servidor:                     127.0.0.1
 -- Versão do servidor:           10.4.17-MariaDB - mariadb.org binary distribution
@@ -12,11 +16,6 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-CREATE TABLE functional
-
-USE functional
-
-
 -- Copiando estrutura para tabela functional.command
 CREATE TABLE IF NOT EXISTS `command` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -26,9 +25,9 @@ CREATE TABLE IF NOT EXISTS `command` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `language` (`class`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=59 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.command: ~20 rows (aproximadamente)
+-- Copiando dados para a tabela functional.command: ~25 rows (aproximadamente)
 /*!40000 ALTER TABLE `command` DISABLE KEYS */;
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(1, 'sql', 'select', 'SELECT\r\n  {{field}}');
@@ -72,68 +71,13 @@ INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(57, 'sql', 'update set where', '');
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(58, 'sql', 'delete where', '');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(62, 'programming', 'block', '{\n    {{block}}\n}');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(63, 'main', 'pointer', '{{pointer}}');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(66, 'programming', 'decorated block', '');
 /*!40000 ALTER TABLE `command` ENABLE KEYS */;
-
--- Copiando estrutura para tabela functional.command_parameter
-CREATE TABLE IF NOT EXISTS `command_parameter` (
-  `command` int(11) DEFAULT NULL,
-  `parameter` varchar(32) DEFAULT NULL,
-  KEY `FK_command_parameter_command` (`command`),
-  KEY `parameter` (`parameter`),
-  CONSTRAINT `FK_command_parameter_command` FOREIGN KEY (`command`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Copiando dados para a tabela functional.command_parameter: ~24 rows (aproximadamente)
-/*!40000 ALTER TABLE `command_parameter` DISABLE KEYS */;
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(2, 'table');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(2, 'field');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(1, 'field');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(3, 'table');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(3, 'field');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(4, 'table');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(5, 'table');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(6, 'type');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(6, 'table');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(6, 'identifier');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(6, 'subject');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(6, 'alias');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(7, 'condition');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(8, 'condition');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(9, 'value');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(10, 'table');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(11, 'value');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(29, 'condition');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(29, 'block');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(49, 'function');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(49, 'parameter');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(50, 'value');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(51, 'parent');
-INSERT INTO `command_parameter` (`command`, `parameter`) VALUES
-	(51, 'child');
-/*!40000 ALTER TABLE `command_parameter` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela functional.sub_command
 CREATE TABLE IF NOT EXISTS `sub_command` (
@@ -145,9 +89,9 @@ CREATE TABLE IF NOT EXISTS `sub_command` (
   KEY `FK__command_2` (`child`),
   CONSTRAINT `FK__command` FOREIGN KEY (`parent`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK__command_2` FOREIGN KEY (`child`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.sub_command: ~9 rows (aproximadamente)
+-- Copiando dados para a tabela functional.sub_command: ~15 rows (aproximadamente)
 /*!40000 ALTER TABLE `sub_command` DISABLE KEYS */;
 INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(5, 14, 3);
@@ -171,6 +115,10 @@ INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(74, 58, 10);
 INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(75, 58, 7);
+INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
+	(80, 66, 63);
+INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
+	(81, 66, 62);
 /*!40000 ALTER TABLE `sub_command` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela functional.sub_command_parameter
@@ -186,10 +134,12 @@ CREATE TABLE IF NOT EXISTS `sub_command_parameter` (
   CONSTRAINT `FK_sub_command_parameter_sub_command` FOREIGN KEY (`sub_command`) REFERENCES `sub_command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.sub_command_parameter: ~1 rows (aproximadamente)
+-- Copiando dados para a tabela functional.sub_command_parameter: ~3 rows (aproximadamente)
 /*!40000 ALTER TABLE `sub_command_parameter` DISABLE KEYS */;
 INSERT INTO `sub_command_parameter` (`sub_command`, `parameter`, `value`, `command`) VALUES
 	(21, 'type', 'LEFT', NULL);
+INSERT INTO `sub_command_parameter` (`sub_command`, `parameter`, `value`, `command`) VALUES
+	(80, 'pointer', '{{decorator}}', NULL);
 /*!40000 ALTER TABLE `sub_command_parameter` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
