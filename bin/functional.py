@@ -1,10 +1,10 @@
 from persistence import sql
 
-def cat(array, seaparator = ',\n'):
+def cat(data):
     ret = ''
-    for i in array:
-        ret += i + seaparator
-    return ret[0:-len(seaparator)] if len(seaparator) != 0 else ret
+    for i in data[1::]:
+        ret += i + data[0]
+    return ret[0:-len(data[0])] if len(data[0]) != 0 else ret
 
 def merge(a, b, separator = ' '):
     return [a[i] + separator + b[i] for i in range(len(a) if len(a) < len(b) else len(b))]
@@ -186,7 +186,7 @@ def build(classe, name, parameter = {}):
                     value = next(command['id'], scope, '') + command['value']
                 else:
                     if(type(k['value']) is list):
-                        value = cat(k['value'][1::], k['value'][0])
+                        value = cat(k['value'])
                     else:
                         value = k['value']
                 value = cur_padding + value.replace('\n','\n'+cur_padding)
