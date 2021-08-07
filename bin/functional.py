@@ -1,13 +1,5 @@
 from persistence import sql
-
-def cat(data):
-    ret = ''
-    for i in data[1::]:
-        ret += i + data[0]
-    return ret[0:-len(data[0])] if len(data[0]) != 0 else ret
-
-def merge(a, b, separator = ' '):
-    return [a[i] + separator + b[i] for i in range(len(a) if len(a) < len(b) else len(b))]
+import vector as vc
 
 
 def get_command(command):
@@ -186,7 +178,7 @@ def build(classe, name, parameter = {}):
                     value = next(command['id'], scope, '') + command['value']
                 else:
                     if(type(k['value']) is list):
-                        value = cat(k['value'])
+                        value = vc.cat(k['value'])
                     else:
                         value = k['value']
                 value = cur_padding + value.replace('\n','\n'+cur_padding)
@@ -249,7 +241,7 @@ def set_child(command, child, parameter = None):
             db.run(build('sql','insert values',{
                 'table': 'sub_command_parameter',
                 'field': [',\n', 'sub_command', 'parameter', 'value', 'command'],
-                'value': f"{id}, '{i}', {('null, '+ com + str(get_command(parameter[i])['id']) + com) if type(parameter[i]) is tuple else (com + (cat(parameter[i]) if type(parameter[i]) is list else parameter[i]) + com + ', null')}"
+                'value': f"{id}, '{i}', {('null, '+ com + str(get_command(parameter[i])['id']) + com) if type(parameter[i]) is tuple else (com + (vc.cat(parameter[i]) if type(parameter[i]) is list else parameter[i]) + com + ', null')}"
             }))
     
     db.close()

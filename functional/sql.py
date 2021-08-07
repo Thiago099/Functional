@@ -1,5 +1,6 @@
 import functional as fn
 import color as c
+import vector as vc
 class table:
     def __init__(self, table, field, id = True):
         self.table = table
