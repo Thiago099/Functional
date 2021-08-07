@@ -1,5 +1,4 @@
 import functional as fn
-import color as c
 import vector as vc
 class table:
     def __init__(self, table, field, id = True):
@@ -28,7 +27,7 @@ class table:
     
     @property
     def create(self):
-        field = fn.merge(self.field, self.type)
+        field = vc.merge(self.field, self.type)
         if(self.id):
             field.append('PRIMARY KEY (id)')
         
@@ -53,19 +52,26 @@ class table:
         ]) + ';'
     
     @property
+    def select_id(self):
+        return vc.cat(['\n',fn.build('sql', 'select from', [
+            [',\n'] + self.field[1::],
+            self.table
+        ]),fn.build('sql','where',['id = @Id'])])+ ';'
+    
+    @property
     def update(self):
         if(not self.id):
             print(c.red + 'no criterion' + c.white)
             return ''
         return fn.build('sql', 'update set where', [
             self.table,
-            [',\n'] + fn.merge
+            [',\n'] + vc.merge
             (
                 self.field[1::],
                 self.value[1::],
                 ' = '
             ),
-            [',\n'] + fn.merge
+            [',\n'] + vc.merge
             (
                 self.field[:1],
                 self.value[:1],
@@ -80,7 +86,7 @@ class table:
             return ''
         return fn.build('sql', 'delete where', [
             self.table,
-            [',\n'] + fn.merge
+            [',\n'] + vc.merge
             (
                 self.field[:1],
                 self.value[:1],
