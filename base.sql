@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `command` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `language` (`class`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4;
 
 -- Copiando dados para a tabela functional.command: ~25 rows (aproximadamente)
 /*!40000 ALTER TABLE `command` DISABLE KEYS */;
@@ -60,7 +60,7 @@ INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(25, 'sql', 'update set', '');
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
-	(29, 'python', 'if', 'if({{condition}}):\r\n  {{block}}');
+	(29, 'python', 'decorated block', '{{decorator}}:\r\n  {{block}}');
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(49, 'programming', 'call', '{{function}}({{parameter}})');
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
@@ -77,6 +77,16 @@ INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(63, 'main', 'pointer', '{{pointer}}');
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(66, 'programming', 'decorated block', '');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(69, 'programming', 'function', '{{name}}({{parameters}})');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(70, 'programming', 'function definition', '');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(71, 'dotnet', 'proprety', 'public {{type}} {{name}} { get; set; }');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(72, 'dotnet', 'return block', '{{decorator}}\r\n  => {{block}}');
+INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
+	(100, 'a', 'a', 'a');
 /*!40000 ALTER TABLE `command` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela functional.sub_command
@@ -89,9 +99,9 @@ CREATE TABLE IF NOT EXISTS `sub_command` (
   KEY `FK__command_2` (`child`),
   CONSTRAINT `FK__command` FOREIGN KEY (`parent`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK__command_2` FOREIGN KEY (`child`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.sub_command: ~15 rows (aproximadamente)
+-- Copiando dados para a tabela functional.sub_command: ~13 rows (aproximadamente)
 /*!40000 ALTER TABLE `sub_command` DISABLE KEYS */;
 INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(5, 14, 3);
@@ -119,6 +129,8 @@ INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(80, 66, 63);
 INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(81, 66, 62);
+INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
+	(86, 70, 66);
 /*!40000 ALTER TABLE `sub_command` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela functional.sub_command_parameter
@@ -134,12 +146,14 @@ CREATE TABLE IF NOT EXISTS `sub_command_parameter` (
   CONSTRAINT `FK_sub_command_parameter_sub_command` FOREIGN KEY (`sub_command`) REFERENCES `sub_command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.sub_command_parameter: ~3 rows (aproximadamente)
+-- Copiando dados para a tabela functional.sub_command_parameter: ~2 rows (aproximadamente)
 /*!40000 ALTER TABLE `sub_command_parameter` DISABLE KEYS */;
 INSERT INTO `sub_command_parameter` (`sub_command`, `parameter`, `value`, `command`) VALUES
 	(21, 'type', 'LEFT', NULL);
 INSERT INTO `sub_command_parameter` (`sub_command`, `parameter`, `value`, `command`) VALUES
 	(80, 'pointer', '{{decorator}}', NULL);
+INSERT INTO `sub_command_parameter` (`sub_command`, `parameter`, `value`, `command`) VALUES
+	(86, 'decorator', NULL, 69);
 /*!40000 ALTER TABLE `sub_command_parameter` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
