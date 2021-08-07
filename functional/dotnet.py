@@ -4,7 +4,10 @@ sys.path.insert(1, 'functional')
 
 import functional as fn
 from sql import table
+from persistence import sql
 import vector as vc
+import os.path as op
+import color as c
 
 def block( name, block):
         return fn.build('programming','decorated block', [name, block])
@@ -34,8 +37,27 @@ class asp:
             self.csharp_obj[i] = tn
         self.sql = table(name,self.sql_obj)
         self.project = project
-
-    
+    def generate(self, path, database):
+        db = sql('')
+        repository = path + f'\\Core\\Repositories\\{self.name}Repository.cs'
+        entity = path + f'\\Core\\Domain\\{self.name}.cs'
+        controller = path + f'\\Controllers\\Restrito\\{self.name}Controller.cs'
+        if(not op.isfile(repository) and not op.isfile(entity) and not op.isfile(controller) and database in [i['Database'] for i in db.query('SHOW DATABASES')]):
+            f = open(entity, "x")
+            f.write(self.entity)
+            f.close()
+            f = open(controller, "x")
+            f.write(self.controller)
+            f.close()
+            f = open(repository, "x")
+            f.write(self.repository)
+            f.close()
+            db.close()
+            db = sql(database)
+            db.run(self.sql.create)
+            db.close()
+        else:
+            print(c.red+'File already exists.'+c.white)
     @property
     def repository(self):
         return classe(
