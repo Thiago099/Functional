@@ -21,4 +21,5 @@ def database(id):
     cmd = db.query(f'SELECT * FROM command WHERE id = {id}')[0]
     db.close()
     return  fn.build(cmd['class'],cmd['name']), 200, {'Content-Type': 'text/plain; charset=utf-8'}
+
 api.run()
