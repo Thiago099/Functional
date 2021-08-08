@@ -3,7 +3,7 @@ sys.path.insert(1, 'bin')
 sys.path.insert(1, 'functional')
 
 import functional as fn
-from sql import table
+from asp_sql import table
 from persistence import sql
 import vector as vc
 import os.path as op

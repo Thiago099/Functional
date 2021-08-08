@@ -1,6 +1,29 @@
+import sys
+sys.path.insert(1, '../bin')
 import functional as fn
 import vector as vc
+from persistence import sql
+
 class table:
+    @staticmethod
+    def from_database(schema, name):
+        db = sql('information_schema')
+        field = {}
+        for i in db.query(f'''
+            SELECT 
+                COLUMN_NAME, COLUMN_TYPE 
+            FROM
+                COLUMNS
+            WHERE 
+                TABLE_SCHEMA = '{schema}'
+            AND 
+                TABLE_NAME = '{name}'
+        ''')[1::]:
+            field[i['COLUMN_NAME']] = i['COLUMN_TYPE']
+        db.close()
+        return table(name, field)
+
+
     def __init__(self, table, field, id = True):
         self.table = table
         self.field = []
@@ -19,7 +42,7 @@ class table:
         
         self.value = []
         for i in self.field:
-            self.value.append('@' + i.capitalize()) 
+            self.value.append('\'{'+i+'}\'') 
     
     @property
     def drop(self):
@@ -56,7 +79,12 @@ class table:
         return vc.cat(['\n',fn.build('sql', 'select from', [
             [',\n'] + self.field[1::],
             self.table
-        ]),fn.build('sql','where',['id = @Id'])])+ ';'
+        ]),fn.build('sql','where',vc.merge
+            (
+                self.field[:1],
+                self.value[:1],
+                ' = '
+            ))])+ ';'
     
     @property
     def update(self):

@@ -1,7 +1,6 @@
 CREATE TABLE functional
 
 USE functional
-
 -- --------------------------------------------------------
 -- Servidor:                     127.0.0.1
 -- Versão do servidor:           10.4.17-MariaDB - mariadb.org binary distribution
@@ -25,9 +24,9 @@ CREATE TABLE IF NOT EXISTS `command` (
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `language` (`class`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.command: ~25 rows (aproximadamente)
+-- Copiando dados para a tabela functional.command: ~35 rows (aproximadamente)
 /*!40000 ALTER TABLE `command` DISABLE KEYS */;
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(1, 'sql', 'select', 'SELECT\r\n  {{field}}');
@@ -86,7 +85,7 @@ INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(72, 'dotnet', 'return block', '{{decorator}}\r\n  => {{block}}');
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
-	(100, 'a', 'a', 'a');
+	(73, 'flask', 'crud', "global {{name}}_driver\r\n{{name}}_driver = table.from_database(\'{{database}}\', \'{{name}}\')\r\nglobal {{name}}_get\r\n@api.route(\'/{{name}}\', methods = [\'GET\'])\r\n@api.route(\'/{{name}}/\', methods = [\'GET\'])\r\ndef {{name}}_get():\r\n    db = sql(\'{{database}}\')\r\n    response = json.dumps(db.query({{name}}_driver.select)), 200, {\'Content-Type\': \'text/json; charset=utf-8\'}\r\n    db.close()\r\n    return response\r\n\r\n@api.route(\'/{{name}}/<id>\', methods = [\'GET\'])\r\ndef {{name}}_get_by_id(id):\r\n    db = sql(\'{{database}}\')\r\n    response = json.dumps(db.query({{name}}_driver.select_id.format(id = id))), 200, {\'Content-Type\': \'text/json; charset=utf-8\'}\r\n    db.close()\r\n    return response\r\n\r\n@api.route(\'/{{name}}\', methods = [\'POST\'])\r\n@api.route(\'/{{name}}/\', methods = [\'POST\'])\r\ndef {{name}}_post():\r\n    db = sql(\'{{database}}\')\r\n    data = rq.get_json()\r\n    if(data[\'id\'] == 0):\r\n        db.run({{name}}_driver.insert.format(**data))\r\n    else:\r\n        db.run({{name}}_driver.update.format(**data))\r\n    db.close()\r\n    return \'\',200\r\n\r\n@api.route(\'/{{name}}/<id>\', methods = [\'DELETE\'])\r\ndef {{name}}_delete(id):\r\n    db = sql(\'{{database}}\')\r\n    db.run({{name}}_driver.delete.format(id = id))\r\n    db.close()\r\n    return \'\',200");
 /*!40000 ALTER TABLE `command` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela functional.sub_command
@@ -101,7 +100,7 @@ CREATE TABLE IF NOT EXISTS `sub_command` (
   CONSTRAINT `FK__command_2` FOREIGN KEY (`child`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.sub_command: ~13 rows (aproximadamente)
+-- Copiando dados para a tabela functional.sub_command: ~14 rows (aproximadamente)
 /*!40000 ALTER TABLE `sub_command` DISABLE KEYS */;
 INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 	(5, 14, 3);
@@ -135,25 +134,27 @@ INSERT INTO `sub_command` (`id`, `parent`, `child`) VALUES
 
 -- Copiando estrutura para tabela functional.sub_command_parameter
 CREATE TABLE IF NOT EXISTS `sub_command_parameter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `sub_command` int(11) DEFAULT NULL,
   `parameter` varchar(32) DEFAULT NULL,
   `value` text DEFAULT NULL,
   `command` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
   KEY `FK_sub_command_parameter_sub_command` (`sub_command`),
   KEY `FK_sub_command_parameter_command` (`command`),
   KEY `parameter` (`parameter`),
   CONSTRAINT `FK_sub_command_parameter_command` FOREIGN KEY (`command`) REFERENCES `command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_sub_command_parameter_sub_command` FOREIGN KEY (`sub_command`) REFERENCES `sub_command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.sub_command_parameter: ~2 rows (aproximadamente)
+-- Copiando dados para a tabela functional.sub_command_parameter: ~3 rows (aproximadamente)
 /*!40000 ALTER TABLE `sub_command_parameter` DISABLE KEYS */;
-INSERT INTO `sub_command_parameter` (`sub_command`, `parameter`, `value`, `command`) VALUES
-	(21, 'type', 'LEFT', NULL);
-INSERT INTO `sub_command_parameter` (`sub_command`, `parameter`, `value`, `command`) VALUES
-	(80, 'pointer', '{{decorator}}', NULL);
-INSERT INTO `sub_command_parameter` (`sub_command`, `parameter`, `value`, `command`) VALUES
-	(86, 'decorator', NULL, 69);
+INSERT INTO `sub_command_parameter` (`id`, `sub_command`, `parameter`, `value`, `command`) VALUES
+	(1, 21, 'type', 'LEFT', NULL);
+INSERT INTO `sub_command_parameter` (`id`, `sub_command`, `parameter`, `value`, `command`) VALUES
+	(2, 80, 'pointer', '{{decorator}}', NULL);
+INSERT INTO `sub_command_parameter` (`id`, `sub_command`, `parameter`, `value`, `command`) VALUES
+	(3, 86, 'decorator', NULL, 69);
 /*!40000 ALTER TABLE `sub_command_parameter` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
