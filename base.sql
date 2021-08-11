@@ -1,9 +1,10 @@
 CREATE DATABASE functional;
 
 USE functional;
+
 -- --------------------------------------------------------
 -- Servidor:                     127.0.0.1
--- Versão do servidor:           10.4.17-MariaDB - mariadb.org binary distribution
+-- Versão do servidor:           10.4.20-MariaDB - mariadb.org binary distribution
 -- OS do Servidor:               Win64
 -- HeidiSQL Versão:              11.2.0.6213
 -- --------------------------------------------------------
@@ -26,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `command` (
   KEY `language` (`class`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=109 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.command: ~35 rows (aproximadamente)
+-- Copiando dados para a tabela functional.command: ~29 rows (aproximadamente)
 /*!40000 ALTER TABLE `command` DISABLE KEYS */;
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(1, 'sql', 'select', 'SELECT\r\n  {{field}}');
@@ -85,7 +86,7 @@ INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
 	(72, 'dotnet', 'return block', '{{decorator}}\r\n  => {{block}}');
 INSERT INTO `command` (`id`, `class`, `name`, `value`) VALUES
-	(73, 'flask', 'crud', "global {{name}}_driver\r\n{{name}}_driver = table.from_database(\'{{database}}\', \'{{name}}\')\r\nglobal {{name}}_get\r\n@api.route(\'/{{name}}\', methods = [\'GET\'])\r\n@api.route(\'/{{name}}/\', methods = [\'GET\'])\r\ndef {{name}}_get():\r\n    db = sql(\'{{database}}\')\r\n    response = json.dumps(db.query({{name}}_driver.select)), 200, {\'Content-Type\': \'text/json; charset=utf-8\'}\r\n    db.close()\r\n    return response\r\n\r\n@api.route(\'/{{name}}/<id>\', methods = [\'GET\'])\r\ndef {{name}}_get_by_id(id):\r\n    db = sql(\'{{database}}\')\r\n    response = json.dumps(db.query({{name}}_driver.select_id.format(id = id))), 200, {\'Content-Type\': \'text/json; charset=utf-8\'}\r\n    db.close()\r\n    return response\r\n\r\n@api.route(\'/{{name}}\', methods = [\'POST\'])\r\n@api.route(\'/{{name}}/\', methods = [\'POST\'])\r\ndef {{name}}_post():\r\n    db = sql(\'{{database}}\')\r\n    data = rq.get_json()\r\n    if(data[\'id\'] == 0):\r\n        db.run({{name}}_driver.insert.format(**data))\r\n    else:\r\n        db.run({{name}}_driver.update.format(**data))\r\n    db.close()\r\n    return \'\',200\r\n\r\n@api.route(\'/{{name}}/<id>\', methods = [\'DELETE\'])\r\ndef {{name}}_delete(id):\r\n    db = sql(\'{{database}}\')\r\n    db.run({{name}}_driver.delete.format(id = id))\r\n    db.close()\r\n    return \'\',200");
+	(73, 'flask', 'crud', 'global {{name}}_driver\r\n{{name}}_driver = table.from_database(\'{{database}}\', \'{{name}}\',lambda field : \'\\\'{\'+field+\'}\\\'\')\r\nglobal {{name}}_get\r\n@api.route(\'/{{name}}\', methods = [\'GET\'])\r\n@api.route(\'/{{name}}/\', methods = [\'GET\'])\r\ndef {{name}}_get():\r\n    db = sql(\'{{database}}\')\r\n    response = json.dumps(db.query({{name}}_driver.select)), 200, {\'Content-Type\': \'text/json; charset=utf-8\'}\r\n    db.close()\r\n    return response\r\n\r\n@api.route(\'/{{name}}/<id>\', methods = [\'GET\'])\r\ndef {{name}}_get_by_id(id):\r\n    db = sql(\'{{database}}\')\r\n    response = json.dumps(db.query({{name}}_driver.select_id.format(id = id))), 200, {\'Content-Type\': \'text/json; charset=utf-8\'}\r\n    db.close()\r\n    return response\r\n\r\n@api.route(\'/{{name}}\', methods = [\'POST\'])\r\n@api.route(\'/{{name}}/\', methods = [\'POST\'])\r\ndef {{name}}_post():\r\n    db = sql(\'{{database}}\')\r\n    data = rq.get_json()\r\n    if(data[\'id\'] == 0):\r\n        db.run({{name}}_driver.insert.format(**data))\r\n    else:\r\n        db.run({{name}}_driver.update.format(**data))\r\n    db.close()\r\n    return \'\',200\r\n\r\n@api.route(\'/{{name}}/<id>\', methods = [\'DELETE\'])\r\ndef {{name}}_delete(id):\r\n    db = sql(\'{{database}}\')\r\n    db.run({{name}}_driver.delete.format(id = id))\r\n    db.close()\r\n    return \'\',200');
 /*!40000 ALTER TABLE `command` ENABLE KEYS */;
 
 -- Copiando estrutura para tabela functional.sub_command
@@ -147,7 +148,7 @@ CREATE TABLE IF NOT EXISTS `sub_command_parameter` (
   CONSTRAINT `FK_sub_command_parameter_sub_command` FOREIGN KEY (`sub_command`) REFERENCES `sub_command` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela functional.sub_command_parameter: ~3 rows (aproximadamente)
+-- Copiando dados para a tabela functional.sub_command_parameter: ~0 rows (aproximadamente)
 /*!40000 ALTER TABLE `sub_command_parameter` DISABLE KEYS */;
 INSERT INTO `sub_command_parameter` (`id`, `sub_command`, `parameter`, `value`, `command`) VALUES
 	(1, 21, 'type', 'LEFT', NULL);
