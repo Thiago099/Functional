@@ -38,26 +38,31 @@ class asp:
         self.sql = table(name, self.sql_obj,lambda field : '@' + field.capitalize() )
         self.project = project
     def generate(self, path, database):
-        db = sql('')
+        db = sql('information_schema')
         repository = path + f'\\Core\\Repositories\\{self.name}Repository.cs'
         entity = path + f'\\Core\\Domain\\{self.name}.cs'
         controller = path + f'\\Controllers\\Restrito\\{self.name}Controller.cs'
-        if(not op.isfile(repository) and not op.isfile(entity) and not op.isfile(controller) and database in [i['Database'] for i in db.query('SHOW DATABASES')]):
-            f = open(entity, "x")
-            f.write(self.entity)
-            f.close()
-            f = open(controller, "x")
-            f.write(self.controller)
-            f.close()
-            f = open(repository, "x")
-            f.write(self.repository)
-            f.close()
-            db.close()
-            db = sql(database)
-            db.run(self.sql.create)
-            db.close()
+        if(not op.isfile(repository) and not op.isfile(entity) and not op.isfile(controller)):
+            if(not self.name in [i['TABLE_NAME'] for i in db.query(f'SELECT TABLE_NAME FROM TABLES WHERE table_schema = "{database}"')]):
+                f = open(entity, "x")
+                f.write(self.entity)
+                f.close()
+                f = open(controller, "x")
+                f.write(self.controller)
+                f.close()
+                f = open(repository, "x")
+                f.write(self.repository)
+                f.close()
+                if(not database in [i['Database'] for i in db.query('SHOW DATABASES')]):
+                    db.run(f'CREATE DATABASE {database}')
+                db.close()
+                db = sql(database)
+                db.run(self.sql.create)
+                db.close()
+            else:
+                print(c.red+'Database Already exists.'+c.white)
         else:
-            print(c.red+'File already exists.'+c.white)
+            print(c.red+'Files already exists.'+c.white)
     @property
     def repository(self):
         return classe(

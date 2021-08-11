@@ -5,7 +5,7 @@ sys.path.insert(1, 'functional')
 
 from persistence import sql
 import functional as fn
-from sql_flask import table
+from sql import table
 import vector as vc
 import json
 from rest import server
