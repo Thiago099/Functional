@@ -1,6 +1,6 @@
-CREATE TABLE functional
+CREATE DATABASE functional;
 
-USE functional
+USE functional;
 -- --------------------------------------------------------
 -- Servidor:                     127.0.0.1
 -- Versão do servidor:           10.4.17-MariaDB - mariadb.org binary distribution

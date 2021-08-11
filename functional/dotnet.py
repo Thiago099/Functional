@@ -3,7 +3,7 @@ sys.path.insert(1, 'bin')
 sys.path.insert(1, 'functional')
 
 import functional as fn
-from asp_sql import table
+from sql import table
 from persistence import sql
 import vector as vc
 import os.path as op
@@ -35,7 +35,7 @@ class asp:
             tn, ts = parameter[i]
             self.sql_obj[i] = ts
             self.csharp_obj[i] = tn
-        self.sql = table(name,self.sql_obj)
+        self.sql = table(name, self.sql_obj,lambda field : '@' + field.capitalize() )
         self.project = project
     def generate(self, path, database):
         db = sql('')

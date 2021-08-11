@@ -6,7 +6,7 @@ from persistence import sql
 
 class table:
     @staticmethod
-    def from_database(schema, name):
+    def from_database(schema, name, notation):
         db = sql('information_schema')
         field = {}
         for i in db.query(f'''
@@ -21,10 +21,10 @@ class table:
         ''')[1::]:
             field[i['COLUMN_NAME']] = i['COLUMN_TYPE']
         db.close()
-        return table(name, field)
+        return table(name, field, notation)
 
 
-    def __init__(self, table, field, id = True):
+    def __init__(self, table, field, notation, id = True):
         self.table = table
         self.field = []
         self.type = []
@@ -42,7 +42,7 @@ class table:
         
         self.value = []
         for i in self.field:
-            self.value.append('\'{'+i+'}\'') 
+            self.value.append(notation(i)) 
     
     @property
     def drop(self):
