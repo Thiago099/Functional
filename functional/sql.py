@@ -23,7 +23,6 @@ class table:
         db.close()
         return table(name, field, notation)
 
-
     def __init__(self, table, field, notation, id = True):
         self.table = f'`{table}`'
         self.field = []

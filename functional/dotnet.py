@@ -37,6 +37,7 @@ class asp:
             self.csharp_obj[i] = tn
         self.sql = table(name, self.sql_obj,lambda field : '@' + field.capitalize() )
         self.project = project
+    
     def generate(self, path, database):
         db = sql('information_schema')
         repository = path + f'\\Core\\Repositories\\{self.name}Repository.cs'
@@ -65,6 +66,7 @@ class asp:
                 print(c.red+'Database Already exists.'+c.white)
         else:
             print(c.red+'Files already exists.'+c.white)
+    
     @property
     def repository(self):
         return classe(
