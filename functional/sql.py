@@ -25,23 +25,23 @@ class table:
 
 
     def __init__(self, table, field, notation, id = True):
-        self.table = table
+        self.table = f'`{table}`'
         self.field = []
         self.type = []
 
         self.id = id
         if(id):
-            self.field.append('id')
+            self.field.append('`id`')
             self.type.append('INT NOT NULL AUTO_INCREMENT')
         
         for i in field:
-            self.field.append(i)
+            self.field.append(f'`{i}`')
             self.type.append(field[i])
         
         
         
         self.value = []
-        for i in self.field:
+        for i in field:
             self.value.append(notation(i)) 
     
     @property

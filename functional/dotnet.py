@@ -57,7 +57,9 @@ class asp:
                     db.run(f'CREATE DATABASE {database}')
                 db.close()
                 db = sql(database)
-                db.run(self.sql.create)
+                create = self.sql.create
+                db.run(create)
+                print(create)
                 db.close()
             else:
                 print(c.red+'Database Already exists.'+c.white)
