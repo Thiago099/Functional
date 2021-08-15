@@ -40,6 +40,7 @@ class table:
         
         
         self.value = []
+        self.value.append(notation('id'))
         for i in field:
             self.value.append(notation(i)) 
     
