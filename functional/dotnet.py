@@ -16,12 +16,12 @@ def return_block(name, block):
     return fn.build('dotnet','return block', [name, block])
 
 
-def classe(using, namespace, name, menbers):
+def classe(using, decorator, namespace, name, menbers):
     return vc.cat(['\n']+[f'using {i};' for i in vc.listfy(using)]) + ('\n\n' if len(using) > 0 else '') + block(
         [' ', 'namespace', namespace],
         ['\n', 
             block(
-                [' ', 'class', name],
+                ['\n'] + vc.listfy(decorator) + [vc.cat([' ','class', name])],
                 ['\n\n'] + vc.listfy(menbers)
             )
         ]
@@ -79,6 +79,7 @@ class asp:
                 self.project + '.Core.Interfaces',
                 'MySql.Data.MySqlClient'
             ],
+            [],
         self.project + '.Core.Repositories',self.name + 'Repository',
         [
             block(f'public List<{self.name}> Get()',
@@ -95,38 +96,38 @@ class asp:
     def entity(self):
         capitalized = [i.capitalize() for i in self.csharp_obj]
         types = [self.csharp_obj[i] for i in self.csharp_obj]
-        return classe(['System','System.ComponentModel.DataAnnotations'], self.project+'.Core.Domain', self.name, 
+        return classe(['System','System.ComponentModel.DataAnnotations'], [], self.project+'.Core.Domain', self.name,
         [fn.build('dotnet','proprety',[types[i], capitalized[i]]) for i in range(len(self.csharp_obj))])
     
     @property
     def controller(self):
         using = [
-            'System',
+            
+        ]
+        return classe(
+            [   
+                'System',
                 'System.Collections.Generic',
                 'Dapper', 
                 self.project + '.Core.Domain',
                 self.project + '.Core.Repositories',
                 'Microsoft.AspNetCore.Authorization',
                 'Microsoft.AspNetCore.Mvc'
-        ]
-        return vc.cat(['\n']+[f'using {i};' for i in vc.listfy(using)]) + ('\n\n' if len(using) > 0 else '') + block(
-            [' ', 'namespace', self.project+'.Controllers.Restrito'],
-            ['\n', 
-                block(
-                    ['\n','[Authorize(Policy = "token")]','[Route("api/[controller]")]',f'[ApiExplorerSettings(GroupName = "{self.name}")]', vc.cat([' ', 'class', self.name+'Controller'])],
-                    ['\n\n', 
-                        return_block(['\n','[httpGet("{id}")]',f'[ProducesResponseType(typeof({self.name}), 200)]',f'public {self.name} Get(int id)'],
-                        f'{self.name}Repository.Get(id);'),
-                        return_block(['\n','[httpGet]',f'[ProducesResponseType(typeof(List<{self.name}>), 200)]',f'public List<{self.name}> Get()'],
-                        f'{self.name}Repository.Get(id);'),
-                        block(['\n','[httpPost]',f'public void Post([FromBody] {self.name} parameter)'],
+            ],
+            ['[Authorize(Policy = "token")]','[Route("api/[controller]")]',f'[ApiExplorerSettings(GroupName = "{self.name}")]'],
+            self.project+'.Controllers.Restrito',
+            self.name+'Controller',
+            [
+                return_block(['\n','[httpGet("{id}")]',f'[ProducesResponseType(typeof({self.name}), 200)]',f'public {self.name} Get(int id)'],
+                f'{self.name}Repository.Get(id);'),
+                return_block(['\n','[httpGet]',f'[ProducesResponseType(typeof(List<{self.name}>), 200)]',f'public List<{self.name}> Get()'],
+                f'{self.name}Repository.Get(id);'),
+                block(['\n','[httpPost]',f'public void Post([FromBody] {self.name} parameter)'],
                     ['\n',
                             block('if(parameter.Id == 0)',f'{self.name}Repository.Insert(parameter);'),
                             block('else',f'{self.name}Repository.Update(parameter);')
                     ]),
-                    return_block(['\n','[httpDelete("{id}")]',f'public void Delete(int id)'],
-                        f'{self.name}Repository.Delete(id);'),
-                    ]
-                )
+                return_block(['\n','[httpDelete("{id}")]',f'public void Delete(int id)'],
+                    f'{self.name}Repository.Delete(id);'),
             ]
         )
