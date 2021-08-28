@@ -4,12 +4,17 @@ sys.path.insert(1, '../functional')
 
 from persistence import sql
 import functional as fn
-from sql_flask import table
+from sql import table
 import vector as vc
 import json
 
-def server(api, database):
+def get_tables(schema):
     db = sql('information_schema')
-    for i in db.query(f'SELECT TABLE_NAME FROM TABLES WHERE TABLE_SCHEMA = \'{database}\''):
-        exec(fn.build('flask', 'crud', [i['TABLE_NAME'], database]))
+    ret = db.query(f'SELECT TABLE_NAME FROM TABLES WHERE TABLE_SCHEMA = \'{schema}\'')
     db.close()
+    return ret
+
+def server(api, schema):
+    for i in get_tables(schema):
+        exec(fn.build('flask', 'crud', [i['TABLE_NAME'], schema]))
+    

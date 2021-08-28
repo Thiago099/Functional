@@ -3,6 +3,7 @@ sys.path.insert(1, '../bin')
 import functional as fn
 import vector as vc
 from persistence import sql
+import color as c
 
 class table:
     @staticmethod
